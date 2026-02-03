@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Model artifacts (OPTIONAL – choose one)
+# If model.pkl is large, keep it; otherwise comment this out
+# model.pkl
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
