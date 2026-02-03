@@ -1,30 +1,45 @@
+import os
 import joblib
 import numpy as np
 
-# Load model at import time (best practice for Cloud Functions)
-model = joblib.load("model.pkl")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
+model = joblib.load(MODEL_PATH)
 
 def predict(request):
+    # ---------- HEALTH CHECK ----------
+    if request.method == "GET":
+        if request.args and request.args.get("health") == "true":
+            return {
+                "status": "ok",
+                "model_loaded": True
+            }
+        return ("Not Found", 404)
+
+    # ---------- PREDICTION ----------
     request_json = request.get_json(silent=True)
 
-    if not request_json:
-        return {"error": "Invalid JSON"}, 400
+    if request_json is None:
+        return ("Invalid or missing JSON payload", 400)
 
     try:
         features = np.array([[
-            request_json["sepal_length"],
-            request_json["sepal_width"],
-            request_json["petal_length"],
-            request_json["petal_width"]
+            float(request_json["sepal_length"]),
+            float(request_json["sepal_width"]),
+            float(request_json["petal_length"]),
+            float(request_json["petal_width"])
         ]])
 
         prediction = int(model.predict(features)[0])
-        confidence = float(max(model.predict_proba(features)[0]))
 
         return {
-            "prediction": prediction,
-            "confidence": confidence
+            "prediction": prediction
         }
 
     except KeyError as e:
-        return {"error": f"Missing field: {str(e)}"}, 400
+        return (f"Missing field: {str(e)}", 400)
+
+    except ValueError as e:
+        return (f"Invalid input: {str(e)}", 400)
+
+    except Exception as e:
+        return (f"Internal error: {str(e)}", 500)
