@@ -45,8 +45,6 @@ http://127.0.0.1:8000/docs
 
 ### Cloud Run – Prediction
 
-The milestone-provided directory structure illustrates a conceptual layout. In practice, Cloud Functions enforce a strict source packaging boundary. Any artifacts required at inference time must be present within the function source directory. As a result, model.pkl is placed inside cloud_function/ to satisfy this constraint.
-
 ```bash 
 POST /predict
 ```
@@ -84,6 +82,8 @@ Response
 ```
 
 ### Cloud Function – Prediction
+
+The milestone-provided directory structure illustrates a conceptual layout. In practice, Cloud Functions enforce a strict source packaging boundary. Any artifacts required at inference time must be present within the function source directory. As a result, model.pkl is placed inside cloud_function/ to satisfy this constraint.
 
 ```bash
 POST /predict
@@ -183,20 +183,15 @@ https://us-central1-ml-milestone1-2304-sj.cloudfunctions.net/iris-predict-fn
 ### Model–API Interaction
 
     The trained machine learning model is saved as a file (`model.pkl`) and is used only for prediction. The API does not train the model; it simply loads the already trained model and uses it to make predictions.
-
     When a request is sent to the API, the input values are read from the request body and converted into the format expected by the model. These values are then passed to the model’s `predict` method. The prediction result is returned to the user as a JSON response.
-
     In both Cloud Run and Cloud Functions, the model is loaded once when the service starts (cold start) and reused for all future requests handled by the same instance. This keeps the API stateless while improving performance by avoiding repeated model loading.
 
 
 ### Cold Start Behavior and Lifecycle Implications
 
     A cold start happens when the cloud platform needs to create a new instance to handle a request. During this time, the runtime environment starts up and the trained model (model.pkl) is loaded into memory before the request can be processed.
-
     In Cloud Run, cold starts are usually less noticeable because container instances can stay alive and handle multiple requests over time. Once the container is running, the model stays in memory and subsequent requests are served faster.
-
     In Cloud Functions, cold starts can happen more often because function instances are scaled down quickly when there is no traffic. When a new request arrives after idle time, the function has to start again and reload the model, which can add some delay to the first request.
-
     Overall, both platforms are stateless and load the model during startup, but Cloud Run tends to reuse instances longer, while Cloud Functions focus on simplicity and automatic scaling. This leads to a trade-off between lower latency and ease of deployment when choosing between the two.
 
 
@@ -213,7 +208,7 @@ https://us-central1-ml-milestone1-2304-sj.cloudfunctions.net/iris-predict-fn
 | Operational complexity | Moderate                    | Low                     |
 | Flexibility            | High                        | Lower                   |
 
-### Summary:
+### Summary
 
 Cloud Run provides greater flexibility and runtime control, making it suitable for complex web services. Cloud Functions emphasize simplicity and minimal operational overhead but impose stricter constraints. Both platforms support scalable, stateless inference when designed correctly.
 
